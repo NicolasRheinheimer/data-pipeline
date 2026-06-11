@@ -1,0 +1,5 @@
+# git vai ignorar estes arquivos:
+data/
+.env
+__pycache__/
+secrets.toml
