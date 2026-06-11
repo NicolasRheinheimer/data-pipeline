@@ -3,7 +3,7 @@
 
 <br>
 
-![Main Dashboard](images/dashboard_financeiro.png)
+Estrutura do Pipeline
 
 ---
 
