@@ -11,11 +11,11 @@ def transformar_vendas():
     df_produtos = extract_produtos()
     df_clientes = extract_clientes()
 
-    # Seleciona as colunas e renomeia 'nome' para 'nome_produto'
+    # renomeia 'nome' para 'nome_produto'
     df_consolidado = pd.merge(df_vendas, df_produtos[['produto_id', 'nome', 'custo_unitario_medio']], on="produto_id", how="left"
     ).rename(columns={"nome": "nome_produto"})
     
-    # Seleciona apenas o necessário e renomeia 'nome' para 'nome_cliente'
+    #renomeia 'nome' para 'nome_cliente'
     df_clientes_selecionado = df_clientes[['cliente_id', 'nome', 'dias_pagamento']].rename(columns={"nome": "nome_cliente"})
 
     df_consolidado = pd.merge(df_consolidado, df_clientes_selecionado, on="cliente_id", how="left")
@@ -27,7 +27,6 @@ def transformar_vendas():
     df_consolidado['margem'] = df_consolidado['valor_total'] - (df_consolidado['quantidade'] * df_consolidado['custo_unitario_medio'])
     df_consolidado['margem_percentual'] = (df_consolidado['margem'] / df_consolidado['valor_total']) * 100
     
-    # 4. LIMPEZA: Organiza na ordem exata do plano
     colunas_ordenadas = [
         'venda_id', 'data', 'cliente_id', 'nome_cliente', 'dias_pagamento_cliente',
         'produto_id', 'nome_produto', 'quantidade', 'valor_unitario', 'valor_total',
