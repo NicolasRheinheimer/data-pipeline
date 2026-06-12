@@ -64,6 +64,8 @@ Combinando a eficiência do SQL com o poder do Pandas, esse processo foi totalme
 * **Aba Clientes:** Monitoramento da carteira comercial através da análise de lucratividade real por parceiro. O script extrai a participação de contas estratégicas na margem líquida total do negócio, permitindo que o gestor identifique quais clientes geram valor real para o caixa e quais demandam revisão de contrato ou tabelas de preço.
 
 ![Queries](images/query_pizza_clientes.png)
+
+---
 ![Gráfico](images/pizza_clientes.png)
 
 
@@ -77,13 +79,15 @@ Combinando a eficiência do SQL com o poder do Pandas, esse processo foi totalme
 
 Após o processamento analítico, os dados finalmente aparecem na interface do usuário.
 
+![Visualização](images/dashboard_clientes.png)
+
 Na ponta final do projeto, poderíamos ter escolhido qualquer ferramenta de visualização do mercado como Power BI ou Looker Studio. Para este cenário, optei pela biblioteca **Streamlit**, pois ela se integra nativamente ao ecossistema Python, é totalmente gratuita e nesse projeto os gráficos escolhidos serão mantidos como padrão, dado que já definimos previamente quais são os pontos cruciais que o gestor deve acompanhar na empresa.
 
 ---
 
 ## 🎯 Business Problem
 
-O projeto foi projetado para responder perguntas críticas de negócio enfrentadas pela gestão diariamente:
+O sistema foi projetado para responder perguntas críticas de negócio enfrentadas pela gestão diariamente:
 
 * Qual a nossa Sobra de Caixa Real (Lucro) após deduzir os custos operacionais das vendas?
 * Para onde exatamente está escorrendo o dinheiro da empresa (Ralo de Custos por Produto)?
