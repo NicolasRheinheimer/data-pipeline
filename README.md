@@ -36,7 +36,7 @@ No momento atual, utilizei arquivos CSV para apresentar o conceito e simular os 
 Utilizando a biblioteca Pandas, os dados passaram pelo fluxo completo de Extração, Transformação e Carga.
 Para estruturar a base de dados final, foi necessário realizar o cruzamento de chaves (operações de `merge`) e a normalização de colunas, garantindo a consistência das informações antes da exportação para a nuvem.
 
-![Tratamento de Dados e Merge com Pandas](images\merge_pandas.png)
+![Tratamento de Dados e Merge com Pandas](images/merge_pandas.png)
 
 Após serem modelados para garantir a melhor performance, os arquivos foram carregados no Supabase. No início do processo, tínhamos 4 arquivos CSV brutos que, após passarem pelo tratamento e limpeza, foram normalizados e transformados em 3 tabelas lógicas dentro do banco de dados.
 
@@ -63,8 +63,8 @@ Combinando a eficiência do SQL com o poder do Pandas, esse processo foi totalme
 **Exemplo:**
 * **Aba Clientes:** Monitoramento da carteira comercial através da análise de lucratividade real por parceiro. O script extrai a participação de contas estratégicas na margem líquida total do negócio, permitindo que o gestor identifique quais clientes geram valor real para o caixa e quais demandam revisão de contrato ou tabelas de preço.
 
-![Queries](images\query_pizza_clientes.png)
-![Gráfico](images\pizza_clientes.png)
+![Queries](images/query_pizza_clientes.png)
+![Gráfico](images/pizza_clientes.png)
 
 
 * **Aba Financeiro:** Script responsável pelo cálculo em tempo real dos principais KPIs financeiros (Faturamento, Lucro/Margem e Custos Operacionais), agregando os dados de forma dinâmica e respondendo de acordo com filtros temporais.
