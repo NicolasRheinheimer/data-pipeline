@@ -11,10 +11,10 @@ def formatar_moeda(valor):
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def carregar_dados_do_banco(conn, periodo, produto):
-    # 1. CONSTRUÇÃO DO FILTRO SQL DINÂMICO
+
     clausulas = ["1=1"] # Base para concatenar com AND facilmente
     
-    # Tratamento do Semestre (Ex: "2025/1")
+    # Tratamento do Semestre
     if periodo != "Todo o Período":
         ano, semestre = periodo.split("/")
         clausulas.append(f"EXTRACT(YEAR FROM data::date) = {ano}")
@@ -31,7 +31,6 @@ def carregar_dados_do_banco(conn, periodo, produto):
         
     where_condicao = " AND ".join(clausulas)
 
-    # 2. QUERIES EXECUTADAS NO BANCO
     # Busca lista única de produtos para alimentar o filtro da sidebar
     df_lista_prod = pd.read_sql("SELECT DISTINCT nome_produto FROM public.f_vendas WHERE nome_produto IS NOT NULL ORDER BY nome_produto", conn)
     produtos_lista = df_lista_prod["nome_produto"].tolist()

@@ -54,7 +54,7 @@ def renderizar_template(titulo_aba, kpis, lista_clientes, fig_esquerda, fig_dire
             with st.container(border=True):
                 st.metric(label=kpis[1].get("label"), value=kpis[1].get("value"), delta=kpis[1].get("delta"))
                 
-    # 🎛️ COLUNA DE FILTROS EVOLUÍDOS
+    # filtros na coluna da direita
     with col3:
         with st.container(border=True):
             # Filtro 1: st.multiselect para permitir selecionar 1, 2 ou vários clientes.

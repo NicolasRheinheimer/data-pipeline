@@ -2,12 +2,10 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 import plotly.graph_objects as go
-from google import genai
 import time
 
 from view.layouts.grade_3kpis import renderizar_template
 
-# PALETA DE CORES DEFINIDA
 COR_FATURAMENTO = "#1F77B4"  
 COR_MARGEM = "#2CA02C"       
 COR_RECENCIA = "#FF7F0E"     
@@ -23,54 +21,6 @@ def formatar_moeda(valor):
 def formatar_percentual(valor):
     return f"{float(valor or 0):.1f}%".replace(".", ",")
 
-@st.cache_data(ttl=3600)
-def gerar_insights_gemini(df_kpis, df_eficiencia, df_recencia):
-    resumo_kpis = df_kpis.to_string(index=False)
-    resumo_clientes = df_eficiencia[["cliente", "faturamento_k", "margem_pct"]].to_string(index=False)
-    resumo_alertas = df_recencia.to_string(index=False)
-    
-    prompt = f"""
-    Você é um conselheiro comercial experiente, prático e direto. Analise os dados reais da nossa carteira de clientes abaixo e gere EXATAMENTE 3 dicas de negócios muito simples, fáceis de entender e rápidas (máximo 2 linhas por dica).
-    
-    ATENÇÃO ÀS REGRAS DE LINGUAGEM:
-    1. NÃO use termos técnicos de análise ou palavras em inglês (como Churn, KPI, Recência, Share, BI, Overlap).
-    2. Use palavras simples do dia a dia do comércio, como: "clientes sumidos", "tempo sem comprar", "lucro", "vendas" e "faturamento".
-    3. Imagine que você está explicando a situação da empresa para um comerciante tradicional que quer saber direto ao ponto onde agir hoje.
-    4. Aponte os nomes dos clientes reais que aparecem nos dados para sugerir ações (ex: "Ligue para o Cliente X que está há muitos dias sem comprar").
-
-    Dados das Vendas do Período:
-    {resumo_kpis}
-    
-    Principais Clientes por Vendas (em milhares k) e Margem de Lucro (%):
-    {resumo_clientes}
-    
-    Lista de Clientes Sumidos e Dias Sem Comprar:
-    {resumo_alertas}
-    """
-    
-    # 🛡️ Mecanismo de Retentativa (Retry Logic) para evitar o erro 503
-    tentativas = 3
-    for i in range(tentativas):
-        try:
-            chave_api = st.secrets["api"].get("GEMINI_API_KEY", None)
-            if not chave_api:
-                return "⚠️ **Erro de Configuração:** A chave não foi encontrada no seu secrets.toml."
-            
-            client = genai.Client(api_key=str(chave_api).strip())
-            resposta = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-            )
-            return resposta.text
-            
-        except Exception as e:
-            # Se for a última tentativa e falhar, exibe o erro tratável
-            if i == tentativas - 1:
-                return f"🤖 Os insights automáticos de IA estão temporariamente indisponíveis (Servidor Ocupado). Por favor, mude um filtro para tentar novamente."
-            # Se não for a última, espera 1.5 segundos e tenta de novo o loop
-            time.sleep(1.5)
-
-# --- QUERIES SQL ---
 
 def carregar_lista_clientes_unicos(conn):
     df = pd.read_sql("SELECT DISTINCT COALESCE(nome_cliente, 'Sem cadastro') AS cliente FROM public.f_vendas ORDER BY cliente", conn)
@@ -150,7 +100,7 @@ def aplicar_estilo(grafico):
     return grafico
 
 
-# --- MONTAGEM DO DASHBOARD ---
+# view
 
 def montar_dashboard(conn):
     if "filtro_clientes" not in st.session_state:
@@ -171,7 +121,7 @@ def montar_dashboard(conn):
         {"label": "Margem de Lucro Real", "value": formatar_percentual(kpis["margem_media_percentual"])},
     ]
 
-    # 🍕 Gráfico 1: Pizza
+    # 1st chart 
     g_esq = px.pie(
         df_pizza, names="cliente", values="margem_lucro",
         title="Participação na Margem de Lucro por Cliente",
@@ -181,7 +131,7 @@ def montar_dashboard(conn):
     g_esq.update_traces(textposition='inside', textinfo='percent')
     g_esq.update_layout(showlegend=True)
 
-    # 📊 Gráfico 2: Eficiência Comercial
+    # 2nd chart
     g_dir = go.Figure()
     g_dir.add_trace(go.Bar(
         x=df_eficiencia["cliente"], y=df_eficiencia["faturamento_k"],
@@ -201,7 +151,7 @@ def montar_dashboard(conn):
         yaxis=dict(ticksuffix="k")
     )
 
-    # 📈 Gráfico 3 (Longo): Termômetro de Recência
+    # 3rd chart
     g_longo = px.line(
         df_recencia, x="cliente", y="dias_sem_comprar",
         title="Termômetro de Recência: Dias desde a última compra por Cliente",
@@ -217,15 +167,6 @@ def montar_dashboard(conn):
     res_clientes, res_data = renderizar_template(
         "Análise Estratégica de Clientes", meus_kpis, lista_clientes, g_esq, g_dir, g_longo
     )
-
-    # 💡 3. CONTEXTO DA INTELIGÊNCIA ARTIFICIAL: Adicionado na base do painel
-    st.markdown("---")
-    with st.container(border=True):
-        st.markdown("### 🤖 Insights Consultivos da Carteira (Google Gemini)")
-        with st.spinner("O Gemini está analisando o comportamento dos seus clientes..."):
-            # Dispara a função enviando as tabelas ativas e capturando os insights reais
-            texto_insights = gerar_insights_gemini(df_kpis, df_eficiencia, df_recencia)
-            st.markdown(texto_insights)
 
     if res_clientes != st.session_state.filtro_clientes or res_data != st.session_state.filtro_data:
         st.session_state.filtro_clientes = res_clientes
