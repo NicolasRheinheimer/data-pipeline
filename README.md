@@ -23,7 +23,6 @@ Após a aprovação, a solução será implementada no dia a dia da organizaçã
 * **Interface e UI:** **Streamlit** para construção do Web App modular em Dark Mode
 * **Charts:** **Plotly (Express & Graphical Objects)** para criação de gráficos financeiros e comerciais responsivos
 * **Linguagem Principal & ETL:** **Python** (Pandas para modelagem e tratamento de dados brutos)
-* **Generative AI:** API do **Google Gemini (gemini-2.5-flash)** para geração autônoma de dicas comerciais
 * **Arquitetura de Software:** Estrutura modular desacoplada separando lógica de dados (`view/`) de templates visuais (`wsidebar.py`)
 
 No momento atual, utilizei arquivos CSV para apresentar o conceito e simular os dados; no futuro, as informações virão diretamente da API.
@@ -35,8 +34,9 @@ No momento atual, utilizei arquivos CSV para apresentar o conceito e simular os 
 ## 💽 Processo de ETL (Extract, Transform, Load)
 
 Utilizando a biblioteca Pandas, os dados passaram pelo fluxo completo de Extração, Transformação e Carga.
+Para estruturar a base de dados final, foi necessário realizar o cruzamento de chaves (operações de `merge`) e a normalização de colunas, garantindo a consistência das informações antes da exportação para a nuvem.
 
-*(Aqui você coloca o print dos arquivos da sua pasta src: extract.py, transform.py, load.py)*
+![Tratamento de Dados e Merge com Pandas](images\merge_pandas.png)
 
 Após serem modelados para garantir a melhor performance, os arquivos foram carregados no Supabase. No início do processo, tínhamos 4 arquivos CSV brutos que, após passarem pelo tratamento e limpeza, foram normalizados e transformados em 3 tabelas lógicas dentro do banco de dados.
 
@@ -48,7 +48,8 @@ Após serem modelados para garantir a melhor performance, os arquivos foram carr
 
 Para manter o código sustentável e de fácil manutenção, o projeto foi desacoplado de forma rígida:
 
-* **Camada Visual Centralizada (`wsidebar.py`):** Arquivo maestro que gerencia a construção de barras laterais, grades de colunas, injeção de CSS Dark Mode e estilização de gráficos do Plotly. Não possui nenhuma conexão com o banco de dados.
+* **Camada Visual Centralizada (`wsidebar.py`):** Arquivo maestro que gerencia a construção de barras laterais, grades de colunas, injeção de CSS Dark Mode e estilização de gráficos do Plotly. Não possui nenhuma conexão com o banco de dados. Essa estrutura foi projetada especificamente para suportar múltiplos layouts. Como a necessidade de visualização dos gráficos pode mudar de acordo com o foco do negócio, essa modularidade facilita uma transição rápida e sem quebras de código. Inclusive, para validar essa flexibilidade, o projeto atualmente conta com **dois tipos de layouts diferentes** implementados e operacionais.
+
 * **Camada de Dados Lógicos (`view/*.py`):** Arquivos específicos para cada tela (Financeiro, Clientes, Comercial). Executam as queries no Supabase, tratam os DataFrames com Pandas e repassam os dados prontos para o construtor visual.
 
 ---
@@ -59,7 +60,13 @@ Voltando para os scripts em Python, nos conectamos ao Supabase e iniciamos o pro
 
 Combinando a eficiência do SQL com o poder do Pandas, esse processo foi totalmente dividido: cada query foi desenvolvida isoladamente dentro de sua respectiva página de contexto.
 
-* **Aba Clientes:** Monitoramento de indicadores de recência e inatividade de clientes, servindo de input para o motor de IA gerar insights de reativação de contas.
+**Exemplo:**
+* **Aba Clientes:** Monitoramento da carteira comercial através da análise de lucratividade real por parceiro. O script extrai a participação de contas estratégicas na margem líquida total do negócio, permitindo que o gestor identifique quais clientes geram valor real para o caixa e quais demandam revisão de contrato ou tabelas de preço.
+
+![Queries](images\query_pizza_clientes.png)
+![Gráfico](images\pizza_clientes.png)
+
+
 * **Aba Financeiro:** Script responsável pelo cálculo em tempo real dos principais KPIs financeiros (Faturamento, Lucro/Margem e Custos Operacionais), agregando os dados de forma dinâmica e respondendo de acordo com filtros temporais.
 
 ![Queries e Cálculos de KPIs](images/querys_kpis_financeiros.png)
@@ -70,7 +77,7 @@ Combinando a eficiência do SQL com o poder do Pandas, esse processo foi totalme
 
 Após o processamento analítico, os dados finalmente aparecem na interface do usuário.
 
-Na ponta final do projeto, poderíamos ter escolhido qualquer ferramenta de visualização de mercado (como Power BI, Looker Studio, etc.). Para este cenário, optei pela biblioteca **Streamlit**, pois ela se integra nativamente ao ecossistema Python, é totalmente gratuita e os gráficos escolhidos serão mantidos como padrão, dado que já definimos previamente quais são os pontos cruciais que o gestor deve acompanhar na empresa.
+Na ponta final do projeto, poderíamos ter escolhido qualquer ferramenta de visualização do mercado como Power BI ou Looker Studio. Para este cenário, optei pela biblioteca **Streamlit**, pois ela se integra nativamente ao ecossistema Python, é totalmente gratuita e nesse projeto os gráficos escolhidos serão mantidos como padrão, dado que já definimos previamente quais são os pontos cruciais que o gestor deve acompanhar na empresa.
 
 ---
 
@@ -89,9 +96,8 @@ O projeto foi projetado para responder perguntas críticas de negócio enfrentad
 
 * A validação de um MVP visual utilizando dados fictícios provou ser a melhor estratégia de governança de dados. Ela permitiu alinhar as expectativas do usuário final e garantir a usabilidade das telas sem expor dados reais da empresa em fases iniciais de testes.
 * O desacoplamento de software (`wsidebar.py` separado de `financeiro.py`) garante que a evolução do projeto para consumir dados reais da API do Omie ocorra sem retrabalho na camada de design. Basta atualizar o motor de dados na pasta `src` e as telas se adaptarão sozinhas.
-* Integrar Modelos de Linguagem (LLMs) como o Gemini ao ecossistema de BI abre portas para transformar dashboards passivos em ferramentas ativas de tomada de decisão, entregando valor real e mastigado para gestores de pequenas e médias empresas.
 
-Este projeto foi um exercício completo de engenharia, arquitetura e análise de dados, partindo do tratamento bruto até a entrega de valor com Inteligência Artificial.
+Este projeto foi um exercício completo de engenharia, arquitetura e análise de dados.
 
 ---
 *Produzido por Nicolas Rheinheimer - Data Analytics & Data Engineer*
